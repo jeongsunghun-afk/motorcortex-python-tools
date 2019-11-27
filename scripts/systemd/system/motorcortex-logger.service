@@ -1,0 +1,11 @@
+[Unit]
+Description=Motorcortex Logger
+After=default.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/mcx-datalogger.py -p /mnt/data/signals.json -H 192.168.2.100 -F /mnt/data/traces/ -C
+#--trigger root/Logic/state --triggerop "!=" --triggervalue 1
+
+[Install]
+WantedBy = default.target

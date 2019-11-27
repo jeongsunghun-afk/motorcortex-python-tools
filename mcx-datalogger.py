@@ -1,0 +1,143 @@
+#!/usr/bin/python3
+
+#
+#   Developer : Alexey Zakharov (alexey.zakharov@vectioneer.com)
+#               Philippe Piatkiewitz (philippe.piatkiewitz@vectioneer.com)
+#   All rights reserved. Copyright (c) 2019 VECTIONEER.
+#
+
+from motorcortex_tools.datalogger import DataLogger
+import argparse
+import operator
+import time
+import json
+
+
+DEFAULTHOST = "192.168.2.100"
+DEFAULTFREQDIV = 10
+DEFAULTTRIGGERINTERVAL = 0.5
+
+def createFileName(folder=".", filename=None, comment=None, extension=".csv"):
+    TIMESTRING = time.strftime("%Y-%m-%d_%H-%M-%S")
+    if comment:
+        comment = comment.replace(" ", "_")
+    if filename:
+        return folder+"/"+filename
+    else:
+        if comment:
+            return folder+"/"+TIMESTRING + "_" + comment + extension
+        else:
+            return folder+"/"+TIMESTRING + extension
+
+def main():
+    # Parse the command line
+    DESC = """
+    Log data from a MOTORCORTEX Server to a CSV file.
+    """
+    parser = argparse.ArgumentParser(description=DESC)
+    parser.add_argument('-p', '--parameterfile',
+                        help='JSON file that contains a list of parameters to log. \
+                        The JSON file shall have the following format: \n \
+                        \
+                        [{"path":"root/signal1"}, {"path":"root/signal2"}, ...]',
+                        required=True, default="parameters.json")
+    parser.add_argument('-f', '--file', help='Specify the filename that the data will be saved to. \
+                        By default the filename is created based on the current date and time', required=False, default=None)
+    parser.add_argument('-F', '--folder', help='Folder where output files are placed', required=False, type=str, default=".")
+    parser.add_argument('-c', '--comment', help='Comment to append to filename', nargs='+', required=False, type=str)
+    parser.add_argument('-H', '--host', help='Host to connect to (Default: %s)' % DEFAULTHOST, required=False,
+                        default=DEFAULTHOST)
+    parser.add_argument('-d', '--divider', help='Frequency Divider; specifies the amount of downsampling that occurs at the server.\
+                                                 The server only then sends every N-th sample. Setting the Frequency Divider to 1 \
+                                                 will send at the maximum rate that the server supports. (Default: %d)' % DEFAULTFREQDIV, required=False,
+                        type=int, default=DEFAULTFREQDIV)
+    parser.add_argument('--trigger',
+                        help='Path to the signal that is monitored at the given TRGGERINTERVAL. \
+                        The logger is started whenever the trigger condition is met.',
+                        required=False, default=None)
+    parser.add_argument('--triggerinterval', help='Trigger interval in seconds; the interval at which the trigger parameter is checked. \
+                         (default: %.3f s)'%DEFAULTTRIGGERINTERVAL, required=False, default=DEFAULTTRIGGERINTERVAL)
+    parser.add_argument('--triggervalue', help='Trigger value; the value the trigger is compared to.', required=False, default=True)
+    parser.add_argument('--triggerop', help='Trigger operator; the operator that is used for comparison.', required=False, default="==", choices=['==','<','>','<=','>=','!='],)
+    parser.add_argument('-C', '--compress', help='Compress the traces on the fly using the LZMA algorithm. It creates files with the xz extension.', required=False, action='store_true')
+
+    args = parser.parse_args()
+    INPUTFILE = args.parameterfile
+    comment = None
+    if args.comment:
+        comment = args.comment[0].replace(" ", "_")
+    FOLDER=args.folder
+    OUTPUTFILE = createFileName(folder=FOLDER, filename=args.file, comment=comment)
+
+    HOST = args.host
+    TRIGGER = args.trigger
+    TRIGGERVAL = float(args.triggervalue)
+    TRIGGERINTERVAL = args.triggerinterval
+    TRIGGEROP = args.triggerop
+    if (TRIGGEROP == "<"):
+      OP = operator.lt
+    elif (TRIGGEROP == ">"):
+      OP = operator.gt
+    elif (TRIGGEROP == ">="):
+      OP = operator.ge
+    elif (TRIGGEROP == "<="):
+      OP = operator.le
+    elif (TRIGGEROP == "=="):
+      OP = operator.eq
+    elif (TRIGGEROP == "="):
+      OP = operator.eq
+    elif (TRIGGEROP == "!="):
+      OP = operator.ne
+    else:
+      print("unknown operator %s" %TRIGGEROP)
+
+    infile = open(INPUTFILE, "r")
+    J = json.load(infile)
+    infile.close()
+    parameters = []
+    # print("Parameters to log:")
+    for i in J:
+        # print("%s"%i["path"])
+        parameters.append(i["path"])
+
+    logger = DataLogger(HOST, parameters, divider=args.divider)
+    if not logger.connected:
+        exit(1)
+    if TRIGGER:
+        try:
+            while True:
+                if (OP(logger.req.getParameter(TRIGGER).get().value[0],TRIGGERVAL)):
+                    if not logger.working:
+                        FILENAME = createFileName(folder=FOLDER, comment=comment)
+                        logger.openFileAndWriteHeader(FILENAME, compress = args.compress)
+                        logger.start()
+                            logger.writeParameters(FILENAME + ".params")
+                else:
+                    if logger.working:
+                        logger.stop()
+                        logger.closeFile()
+                time.sleep(TRIGGERINTERVAL)
+        except KeyboardInterrupt:
+            if logger.working:
+                logger.stop()
+                logger.closeFile()
+            logger.close()
+    else:
+        logger.openFileAndWriteHeader(OUTPUTFILE, compress = args.compress)
+        logger.start()
+        if (not args.noparamdump):
+            logger.writeParameters(OUTPUTFILE + ".params")
+        print("Press CTRL-BREAK (CTRL-C) to finish logging ...")
+        while True:
+            try:
+                time.sleep(2)
+            except KeyboardInterrupt:
+                break
+            except:
+                break
+        logger.stop()
+        logger.close()
+
+
+if __name__ == '__main__':
+    main()

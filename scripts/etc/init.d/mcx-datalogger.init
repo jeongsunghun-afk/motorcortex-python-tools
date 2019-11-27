@@ -1,0 +1,50 @@
+#!/bin/sh
+#
+### BEGIN INIT INFO
+# Provides: mcx-datalogger
+# Required-Start: 
+# Required-Stop:
+# Default-Start:     5
+# Default-Stop:      0 1 2 3 6
+### END INIT INFO
+
+# Enable automatic startup with:
+# update-rc.d mcx-datalogger defaults
+
+EXECUTABLE_PATH="/usr/local/bin/"
+EXECUTABLE=mcx-datalogger.py
+OPTIONS=""
+
+# load configuration
+[ -f /etc/motorcortex/mcx-datalogger.conf ] && . /etc/motorcortex/mcx-datalogger.conf
+
+[ -f /etc/default/rcS ] && . /etc/default/rcS
+
+killproc() {            # kill the named process(es)
+        pid=`/bin/pidof $1`
+        [ "$pid" != "" ] && kill $pid
+}
+
+
+case "$1" in
+  start)
+       echo "Starting mcx-datalogger"
+       `${EXECUTABLE_PATH}${EXECUTABLE} ${OPTIONS}` &
+  ;;
+
+  stop)
+        echo "Stopping mcx-datalogger"
+        killproc ${EXECUTABLE}
+  ;;
+
+  restart)
+	    $0 stop
+      $0 start
+  ;;
+
+  *)
+        echo "usage: $0 { start | stop | restart }"
+  ;;
+esac
+
+exit 0

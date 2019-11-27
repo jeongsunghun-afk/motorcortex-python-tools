@@ -1,0 +1,29 @@
+BUILD PIP PACKAGES
+
+python3 ./setup.py sdist --formats=gztar,zip
+The packages will be located in the dist folder
+
+
+INSTALL
+
+ON LINUX:
+1. "sudo apt install python3 python3-matplotlib python3-jinja2"
+2. "sudo pip3 install motorcortex-python"
+3. extract the motorcortex-python-tools archive
+   "cd motorcortex-python-tools/"
+   "sudo python3 ./setup.py install"
+
+ON OTHER SYSTEMS (using PIP)
+1. install Python 3.x (see http://www.python.org)
+2. use pip3 to install all required packages:
+   "pip3 install matplotlib jinja2 motorcortex-python"
+3. extract the motorcortex-python-tools archive
+   "cd motorcortex-python-tools/"
+   execute "python3 ./setup.py install"
+
+   
+For instructions:
+mcx-datalogger --help
+mcx-dataplot --help
+
+

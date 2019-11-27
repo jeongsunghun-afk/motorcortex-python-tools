@@ -1,0 +1,3 @@
+recursive-include examples *.py *.html *.css *.mplstyle
+exclude examples/output.html
+recursive-exclude examples/results *

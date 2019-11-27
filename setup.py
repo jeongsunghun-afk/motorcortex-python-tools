@@ -1,0 +1,21 @@
+#!/usr/bin/python3
+
+#
+#   Developer : Philippe Piatkiewitz (philippe.piatkiewitz@vectioneer.com)
+#   All rights reserved. Copyright (c) 2019 VECTIONEER.
+#
+
+
+from distutils.core import setup
+
+setup(name='motorcortex-python-tools',
+      version='1.1',
+      description='Python tools for Motorcortex Engine',
+      author='Philippe Piatkiewitz',
+      author_email='philippe.piatkiewitz@vectioneer.com',
+      url='https://www.motorcortex.io',
+      packages=['motorcortex_tools'],
+      scripts=['mcx-datalogger.py','mcx-dataplot.py','mcx-fra.py'],
+      install_requires=['pandas>0.22','matplotlib>2.1'],
+      )
+
