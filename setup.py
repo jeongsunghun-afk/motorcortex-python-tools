@@ -9,7 +9,7 @@
 from distutils.core import setup
 
 setup(name='motorcortex-python-tools',
-      version='1.1',
+      version='1.2',
       description='Python tools for Motorcortex Engine',
       author='Philippe Piatkiewitz',
       author_email='philippe.piatkiewitz@vectioneer.com',
