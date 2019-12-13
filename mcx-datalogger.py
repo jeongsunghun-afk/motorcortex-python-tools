@@ -111,7 +111,7 @@ def main():
                         FILENAME = createFileName(folder=FOLDER, comment=comment)
                         logger.openFileAndWriteHeader(FILENAME, compress = args.compress)
                         logger.start()
-                            logger.writeParameters(FILENAME + ".params")
+                        logger.writeParameters(FILENAME + ".params")
                 else:
                     if logger.working:
                         logger.stop()

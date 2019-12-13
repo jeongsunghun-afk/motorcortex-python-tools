@@ -1,7 +1,8 @@
 BUILD PIP PACKAGES
 
-python3 ./setup.py sdist --formats=gztar,zip
-The packages will be located in the dist folder
+To update the repository on PiPy:
+python3 ./setup.py sdist bdist_wheel
+python3 -m twine upload dist/motorcortex-python-tools-1.2.1.tar.gz --verbose
 
 
 INSTALL
