@@ -15,7 +15,7 @@ setup(name='motorcortex-python-tools',
       author_email='philippe.piatkiewitz@vectioneer.com',
       url='https://www.motorcortex.io',
       packages=['motorcortex_tools'],
-      scripts=['mcx-datalogger.py','mcx-dataplot.py','mcx-fra.py'],
+      scripts=['mcx-datalogger.py','mcx-dataplot.py'],
       install_requires=['pandas>0.22','matplotlib>2.1'],
       )
 
