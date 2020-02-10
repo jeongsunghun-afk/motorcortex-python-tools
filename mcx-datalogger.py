@@ -13,7 +13,9 @@ import time
 import json
 
 
-DEFAULTHOST = "192.168.2.100"
+# DEFAULTHOST = "192.168.2.100"
+DEFAULTURL = "wss://192.168.2.100:5568:5567"
+DEFAULTCERT="motorcortex.crt"
 DEFAULTFREQDIV = 10
 DEFAULTTRIGGERINTERVAL = 0.5
 
@@ -45,8 +47,12 @@ def main():
                         By default the filename is created based on the current date and time', required=False, default=None)
     parser.add_argument('-F', '--folder', help='Folder where output files are placed', required=False, type=str, default=".")
     parser.add_argument('-c', '--comment', help='Comment to append to filename', nargs='+', required=False, type=str)
-    parser.add_argument('-H', '--host', help='Host to connect to (Default: %s)' % DEFAULTHOST, required=False,
-                        default=DEFAULTHOST)
+    # parser.add_argument('-H', '--host', help='Host to connect to (Default: %s)' % DEFAULTHOST, required=False,
+    #                     default=DEFAULTHOST)
+    parser.add_argument('-u', '--url', help='URL to connect to (Default: %s)' % DEFAULTURL, required=False,
+                        default=DEFAULTURL)
+    parser.add_argument('-s', '--certificate', help='Certificate to use when connecting securely. (Default: %s)' % DEFAULTCERT, required=False,
+                        default=DEFAULTCERT)
     parser.add_argument('-d', '--divider', help='Frequency Divider; specifies the amount of downsampling that occurs at the server.\
                                                  The server only then sends every N-th sample. Setting the Frequency Divider to 1 \
                                                  will send at the maximum rate that the server supports. (Default: %d)' % DEFAULTFREQDIV, required=False,
@@ -60,6 +66,7 @@ def main():
     parser.add_argument('--triggervalue', help='Trigger value; the value the trigger is compared to.', required=False, default=True)
     parser.add_argument('--triggerop', help='Trigger operator; the operator that is used for comparison.', required=False, default="==", choices=['==','<','>','<=','>=','!='],)
     parser.add_argument('-C', '--compress', help='Compress the traces on the fly using the LZMA algorithm. It creates files with the xz extension.', required=False, action='store_true')
+    parser.add_argument('--noparamdump', help='Do not dump parameters to file for each trace.', required=False, action='store_true')
 
     args = parser.parse_args()
     INPUTFILE = args.parameterfile
@@ -69,7 +76,7 @@ def main():
     FOLDER=args.folder
     OUTPUTFILE = createFileName(folder=FOLDER, filename=args.file, comment=comment)
 
-    HOST = args.host
+    # HOST = args.host
     TRIGGER = args.trigger
     TRIGGERVAL = float(args.triggervalue)
     TRIGGERINTERVAL = args.triggerinterval
@@ -100,7 +107,8 @@ def main():
         # print("%s"%i["path"])
         parameters.append(i["path"])
 
-    logger = DataLogger(HOST, parameters, divider=args.divider)
+    logger = DataLogger(args.url, parameters, divider=args.divider, certificate=args.certificate)
+    # logger = DataLogger("wss://%s"%HOST, parameters, divider=args.divider, req_port=5568, sub_port=5567)
     if not logger.connected:
         exit(1)
     if TRIGGER:

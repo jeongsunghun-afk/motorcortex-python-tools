@@ -38,14 +38,14 @@ class DataLogger:
         a list of paths to subscribe to
     divider : int, optional
         frequency divider
-    user : str, optional
+    login : str, optional
         user name used when logging in
     password : str, optional
         password used when logging in
 
     Methods
     -------
-    connect(server, user="root", password="vectioneer")
+    connect(server, login="root", password="vectioneer")
         connects to a server
     openFileAndWriteHeader(filename)
         opens a file and writes the header information to that file
@@ -60,12 +60,12 @@ class DataLogger:
     close()
         close the file (if open) and the connection
     """
-    def __init__(self, server, paths, divider=10, user="root", password="vectioneer"):
+    def __init__(self, url, paths, divider=10, login="root", password="vectioneer", req_port=5568, sub_port=5567, certificate="motorcortex.crt"):
         """
-        :param server: the address or hostname of the server to connect to
+        :param url: the address of the server to connect to in the format wss://[host]:[sub_port]:[req_port]
         :param paths: a list of paths to subscribe to
         :param divider: frequency divider
-        :param user: user name used when logging in
+        :param login: user name used when logging in
         :param password: password used when logging in
         """
         self.req = None
@@ -81,16 +81,16 @@ class DataLogger:
         self.traces = {}
         self.working = False
 
-        self.connected = self.connect(server, user=user, password=password)
+        self.connected = self.connect(url, req_port=5568, sub_port=5567, login=login, password=password, certificate=certificate)
         if self.connected:
             self.__initTraces(paths)
 
-    def connect(self, server, user="root", password="vectioneer"):
+    def connect(self, url, req_port=5568, sub_port=5567, login="root", password="vectioneer", certificate="motorcortex.crt", conn_timeout_ms=1000, recv_timeout_ms=2000):
         """
         Connect to a Motorcortex server and login
 
-        :param server:
-        :param user:
+        :param url:
+        :param login:
         :param password:
         :return:
         """
@@ -102,15 +102,14 @@ class DataLogger:
         motorcortex_msg = motorcortex_types.motorcortex()
 
         # Open request connection
-        self.req = motorcortex.Request(motorcortex_types, self.parameter_tree)
-        self.req.connect("ws://%s:5558" % server)
-        self.sub = motorcortex.Subscribe(self.req, motorcortex_types)
-        self.sub.connect("ws://%s:5557" % server)
+        self.req, self.sub = motorcortex.connect(url, motorcortex_types, self.parameter_tree,
+                                       certificate=certificate, timeout_ms=conn_timeout_ms,
+                                       login=login, password=password)
 
         # Login as Operator
-        login_reply = self.req.login(user, password)
+        login_reply = self.req.login(login, password)
         try:
-            login_reply_msg = login_reply.get(2)
+            login_reply_msg = login_reply.get()
         except:
             print("Login failed!")
             self.close()
