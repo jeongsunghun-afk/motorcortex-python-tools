@@ -108,7 +108,6 @@ def main():
         parameters.append(i["path"])
 
     logger = DataLogger(args.url, parameters, divider=args.divider, certificate=args.certificate)
-    # logger = DataLogger("wss://%s"%HOST, parameters, divider=args.divider, req_port=5568, sub_port=5567)
     if not logger.connected:
         exit(1)
     if TRIGGER:

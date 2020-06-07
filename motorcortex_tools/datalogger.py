@@ -60,7 +60,7 @@ class DataLogger:
     close()
         close the file (if open) and the connection
     """
-    def __init__(self, url, paths, divider=10, login="root", password="vectioneer", req_port=5568, sub_port=5567, certificate="motorcortex.crt"):
+    def __init__(self, url, paths, divider=10, login="root", password="vectioneer", certificate="motorcortex.crt"):
         """
         :param url: the address of the server to connect to in the format wss://[host]:[sub_port]:[req_port]
         :param paths: a list of paths to subscribe to
@@ -81,11 +81,11 @@ class DataLogger:
         self.traces = {}
         self.working = False
 
-        self.connected = self.connect(url, req_port=5568, sub_port=5567, login=login, password=password, certificate=certificate)
+        self.connected = self.connect(url, login=login, password=password, certificate=certificate)
         if self.connected:
             self.__initTraces(paths)
 
-    def connect(self, url, req_port=5568, sub_port=5567, login="root", password="vectioneer", certificate="motorcortex.crt", conn_timeout_ms=1000, recv_timeout_ms=2000):
+    def connect(self, url, login="root", password="vectioneer", certificate="motorcortex.crt", conn_timeout_ms=1000, recv_timeout_ms=2000):
         """
         Connect to a Motorcortex server and login
 

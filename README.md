@@ -2,7 +2,7 @@ BUILD PIP PACKAGES
 
 To update the repository on PiPy:
 python3 ./setup.py sdist bdist_wheel
-python3 -m twine upload dist/motorcortex-python-tools-1.3.1.tar.gz --verbose
+python3 -m twine upload dist/motorcortex-python-tools-1.3.3.tar.gz --verbose
 
 
 INSTALL
