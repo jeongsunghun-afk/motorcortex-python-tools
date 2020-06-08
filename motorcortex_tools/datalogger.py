@@ -74,7 +74,6 @@ class DataLogger:
         self.paths = []
         self.file = None
         # Creating empty object for parameter tree
-        self.parameter_tree = motorcortex.ParameterTree()
         self.tree = None
         self.subscription = None
         self.divider = divider
@@ -85,56 +84,33 @@ class DataLogger:
         if self.connected:
             self.__initTraces(paths)
 
-    def connect(self, url, login="root", password="vectioneer", certificate="motorcortex.crt", conn_timeout_ms=1000, recv_timeout_ms=2000):
+    def connect(self, url, login="root", password="vectioneer", certificate="motorcortex.crt", conn_timeout_ms=1000):
         """
         Connect to a Motorcortex server and login
 
-        :param url:
-        :param login:
-        :param password:
-        :return:
+        :param url: the address of the server to connect to in the format wss://[host]:[sub_port]:[req_port]
+        :param login: user name used when logging in
+        :param password: password used when logging in
+        :param certificate: certificate file to use when connecting with a secure connection
+        :param conn_timeout_ms: connection timeout in ms
+        :return: True if successfull, folse if an error occurred
         """
         """
         Connect to a Motorcortex server and login
         """
-        # Loading protobuf types and hashes
-        motorcortex_types = motorcortex.MessageTypes()
-        motorcortex_msg = motorcortex_types.motorcortex()
-
+        parameter_tree = motorcortex.ParameterTree()
         # Open request connection
-        self.req, self.sub = motorcortex.connect(url, motorcortex_types, self.parameter_tree,
-                                       certificate=certificate, timeout_ms=conn_timeout_ms,
-                                       login=login, password=password)
-
-        # Login as Operator
-        login_reply = self.req.login(login, password)
         try:
-            login_reply_msg = login_reply.get()
-        except:
-            print("Login failed!")
-            self.close()
+          self.req, self.sub = motorcortex.connect(url, motorcortex.MessageTypes(), parameter_tree,
+                                           certificate=certificate, timeout_ms=conn_timeout_ms,
+                                           login=login, password=password)
+
+        except RuntimeError as err:
+            print("Failed to connect to {}, {}".format(url, err))
             return False
 
-        if login_reply_msg and login_reply_msg.status == motorcortex_msg.OK:
-            print("Login successfull")
-        else:
-            self.close()
-            return False
-            print("Login failed!")
-
-        # Requesting a parameter tree
-        param_tree_reply = self.req.getParameterTree()
-        param_tree_reply_msg = param_tree_reply.get()
-        if param_tree_reply_msg and param_tree_reply_msg.status == motorcortex_msg.OK:
-            print("Got parameter tree")
-            print("Loading...")
-            self.parameter_tree.load(param_tree_reply_msg)
-        else:
-            print("Getting Parameter Tree failed")
-            self.close()
-            return False
-        self.tree = self.parameter_tree.getParameterTree()
-        print("%d parameters in tree" % len(self.tree))
+        self.tree = parameter_tree.getParameterTree()
+        print("%d parameters in tree"%len(self.tree))
         return True
 
     def __messageReceived(self, parameters):
