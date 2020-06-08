@@ -1,8 +1,19 @@
 BUILD PIP PACKAGES
 
 To update the repository on PiPy:
+1. Tag the version in GIT:
+```
+git tag -a 1.3.4 -m "version 1.3.4"
+```
+2. Set the correct version tag in setup.py
+3. build 
+```
 python3 ./setup.py sdist bdist_wheel
+```
+4. upload
+```
 python3 -m twine upload dist/motorcortex-python-tools-1.3.3.tar.gz --verbose
+```
 
 
 INSTALL
