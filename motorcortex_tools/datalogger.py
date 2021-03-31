@@ -42,10 +42,13 @@ class DataLogger:
         user name used when logging in
     password : str, optional
         password used when logging in
+    certificate : str, optional
+        TLS certificate
+
 
     Methods
     -------
-    connect(server, login="root", password="vectioneer")
+    connect(server, login="", password="", certificate="mcx.cert.pem")
         connects to a server
     openFileAndWriteHeader(filename)
         opens a file and writes the header information to that file
@@ -60,13 +63,14 @@ class DataLogger:
     close()
         close the file (if open) and the connection
     """
-    def __init__(self, url, paths, divider=10, login="root", password="vectioneer", certificate="motorcortex.crt"):
+    def __init__(self, url, paths, divider=10, login="", password="", certificate="mcx.cert.pem"):
         """
         :param url: the address of the server to connect to in the format wss://[host]:[sub_port]:[req_port]
         :param paths: a list of paths to subscribe to
         :param divider: frequency divider
         :param login: user name used when logging in
         :param password: password used when logging in
+        :param certificate: TLS certificate
         """
         self.req = None
         self.sub = None
@@ -84,7 +88,7 @@ class DataLogger:
         if self.connected:
             self.__initTraces(paths)
 
-    def connect(self, url, login="root", password="vectioneer", certificate="motorcortex.crt", conn_timeout_ms=1000):
+    def connect(self, url, login, password, certificate="mcx.cert.pem", conn_timeout_ms=1000):
         """
         Connect to a Motorcortex server and login
 
@@ -93,7 +97,8 @@ class DataLogger:
         :param password: password used when logging in
         :param certificate: certificate file to use when connecting with a secure connection
         :param conn_timeout_ms: connection timeout in ms
-        :return: True if successfull, folse if an error occurred
+        :param certificate: TLS certificate
+        :return: True if connected, false if an error occurred
         """
         """
         Connect to a Motorcortex server and login
