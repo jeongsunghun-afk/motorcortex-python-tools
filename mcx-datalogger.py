@@ -67,6 +67,10 @@ def main():
     parser.add_argument('--triggerop', help='Trigger operator; the operator that is used for comparison.', required=False, default="==", choices=['==','<','>','<=','>=','!='],)
     parser.add_argument('-C', '--compress', help='Compress the traces on the fly using the LZMA algorithm. It creates files with the xz extension.', required=False, action='store_true')
     parser.add_argument('--noparamdump', help='Do not dump parameters to file for each trace.', required=False, action='store_true')
+    parser.add_argument('--watchdogpulse', help='Send a watchdog parameter update to specified parameter at \
+                                                 triggerinterval pulses per second. The value that is sent to the \
+                                                 parameter is true. It is expected that the server resets the parameter \
+                                                 to false cyclically.', required=False, default=None)
 
     args = parser.parse_args()
     INPUTFILE = args.parameterfile
@@ -78,6 +82,7 @@ def main():
 
     # HOST = args.host
     TRIGGER = args.trigger
+    WDG = args.watchdogpulse
     TRIGGERVAL = float(args.triggervalue)
     TRIGGERINTERVAL = args.triggerinterval
     TRIGGEROP = args.triggerop
@@ -123,6 +128,8 @@ def main():
                     if logger.working:
                         logger.stop()
                         logger.closeFile()
+                if WDG:
+                    logger.req.setParameter(WDG, True).get()
                 time.sleep(TRIGGERINTERVAL)
         except KeyboardInterrupt:
             if logger.working:
@@ -137,7 +144,9 @@ def main():
         print("Press CTRL-BREAK (CTRL-C) to finish logging ...")
         while True:
             try:
-                time.sleep(2)
+                if WDG:
+                    logger.req.setParameter(WDG, True).get()
+                time.sleep(1)
             except KeyboardInterrupt:
                 break
             except:
