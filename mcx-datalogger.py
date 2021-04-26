@@ -146,7 +146,7 @@ def main():
             try:
                 if WDG:
                     logger.req.setParameter(WDG, True).get()
-                time.sleep(1)
+                time.sleep(TRIGGERINTERVAL)
             except KeyboardInterrupt:
                 break
             except:
