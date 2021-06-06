@@ -63,7 +63,7 @@ class DataLogger:
     close()
         close the file (if open) and the connection
     """
-    def __init__(self, url, paths, divider=10, login="", password="", certificate="mcx.cert.pem"):
+    def __init__(self, url, paths, divider=10, login="", password="", certificate="mcx.cert.crt"):
         """
         :param url: the address of the server to connect to in the format wss://[host]:[sub_port]:[req_port]
         :param paths: a list of paths to subscribe to

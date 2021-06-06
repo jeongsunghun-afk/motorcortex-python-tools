@@ -20,13 +20,12 @@ DEFAULTFREQDIV = 10
 DEFAULTTRIGGERINTERVAL = 0.5
 
 def createFileName(folder=".", filename=None, comment=None, extension=".csv"):
-    TIMESTRING = time.strftime("%Y-%m-%d_%H-%M-%S")
-    if comment:
-        comment = comment.replace(" ", "_")
+    TIMESTRING = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
     if filename:
         return folder+"/"+filename
     else:
         if comment:
+            comment = comment.replace(" ", "_")
             return folder+"/"+TIMESTRING + "_" + comment + extension
         else:
             return folder+"/"+TIMESTRING + extension
@@ -75,8 +74,6 @@ def main():
     args = parser.parse_args()
     INPUTFILE = args.parameterfile
     comment = None
-    if args.comment:
-        comment = args.comment[0].replace(" ", "_")
     FOLDER=args.folder
     OUTPUTFILE = createFileName(folder=FOLDER, filename=args.file, comment=comment)
 
