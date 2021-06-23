@@ -8,6 +8,8 @@
 
 import motorcortex
 import lzma
+from random import sample
+from string import ascii_letters
 
 class DataLogger:
     """
@@ -217,7 +219,8 @@ class DataLogger:
         paths = []
         for p in self.paths:
             paths.append(p["path"])
-        self.subscription = self.sub.subscribe(paths, 'group1', self.divider)
+        group = 'datalogger_' + ''.join(sample(ascii_letters,10))
+        self.subscription = self.sub.subscribe(paths, group, self.divider)
         self.subscription.get(10)
         self.subscription.notify(self.__messageReceived)
         self.working = True
