@@ -19,7 +19,7 @@ DEFAULTURL = "wss://192.168.2.100:5568:5567"
 DEFAULTCERT="mcx.cert.crt"
 DEFAULTFREQDIV = 10
 DEFAULTTRIGGERINTERVAL = 0.5
-DEFAULTTRIGGEROFFDELAY = 0.0
+DEFAULTTRIGGEROFFDELAY = 0
 
 def createFileName(folder=".", filename=None, comment=None, extension=".csv"):
     TIMESTRING = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
@@ -68,7 +68,7 @@ def main():
     parser.add_argument('--triggerop', help='Trigger operator; the operator that is used for comparison.', required=False, default="==", choices=['==','<','>','<=','>=','!='],)
     parser.add_argument('--triggeroffdelay', help='Trigger off delay in seconds; after the trigger condition is false, \
                                                    the datalogger will wait for the trigger off delay time \
-                                                   before the logger stops. (Default: %d)' % DEFAULTTRIGGEROFFDELAY, required=False, default=DEFAULTTRIGGEROFFDELAY,)
+                                                   before the logger stops. (Default: %d)' % DEFAULTTRIGGEROFFDELAY, type=int, required=False, default=DEFAULTTRIGGEROFFDELAY,)
     parser.add_argument('-C', '--compress', help='Compress the traces on the fly using the LZMA algorithm. It creates files with the xz extension.', required=False, action='store_true')
     parser.add_argument('--noparamdump', help='Do not dump parameters to file for each trace.', required=False, action='store_true')
     parser.add_argument('--watchdogpulse', help='Send a watchdog parameter update to specified parameter at \
