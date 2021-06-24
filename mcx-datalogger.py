@@ -118,10 +118,12 @@ def main():
     # check for user/password in url
     login = ""
     password = ""
-    match = re.search(args.url, "//(.+):(.+)@")
+    url = args.url
+    match = re.search("//(.+):(.+)@", url)
     if match and len(match.groups()) == 2:
         login = match.group(1)
         password = match.group(2)
+        url = url.replace(match.group(),"//")
 
     logger = DataLogger(url, parameters, divider=args.divider, certificate=args.certificate, login=login, password=password)
     if not logger.connected:
