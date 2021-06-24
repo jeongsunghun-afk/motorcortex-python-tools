@@ -18,6 +18,7 @@ DEFAULTURL = "wss://192.168.2.100:5568:5567"
 DEFAULTCERT="mcx.cert.pem"
 DEFAULTFREQDIV = 10
 DEFAULTTRIGGERINTERVAL = 0.5
+DEFAULTTRIGGEROFFDELAY = 0.0
 
 def createFileName(folder=".", filename=None, comment=None, extension=".csv"):
     TIMESTRING = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
@@ -64,6 +65,9 @@ def main():
                          (default: %.3f s)'%DEFAULTTRIGGERINTERVAL, required=False, default=DEFAULTTRIGGERINTERVAL)
     parser.add_argument('--triggervalue', help='Trigger value; the value the trigger is compared to.', required=False, default=True)
     parser.add_argument('--triggerop', help='Trigger operator; the operator that is used for comparison.', required=False, default="==", choices=['==','<','>','<=','>=','!='],)
+    parser.add_argument('--triggeroffdelay', help='Trigger off delay in seconds; after the trigger condition is false, \
+                                                   the datalogger will wait for the trigger off delay time \
+                                                   before the logger stops. (Default: %d)' % DEFAULTTRIGGEROFFDELAY, required=False, default=DEFAULTTRIGGEROFFDELAY,)
     parser.add_argument('-C', '--compress', help='Compress the traces on the fly using the LZMA algorithm. It creates files with the xz extension.', required=False, action='store_true')
     parser.add_argument('--noparamdump', help='Do not dump parameters to file for each trace.', required=False, action='store_true')
     parser.add_argument('--watchdogpulse', help='Send a watchdog parameter update to specified parameter at \
@@ -82,6 +86,7 @@ def main():
     WDG = args.watchdogpulse
     TRIGGERVAL = float(args.triggervalue)
     TRIGGERINTERVAL = args.triggerinterval
+    TRIGGEROFFDELAY = args.triggeroffdelay
     TRIGGEROP = args.triggerop
     if (TRIGGEROP == "<"):
       OP = operator.lt
@@ -120,9 +125,12 @@ def main():
                         FILENAME = createFileName(folder=FOLDER, comment=comment)
                         logger.openFileAndWriteHeader(FILENAME, compress = args.compress)
                         logger.start()
-                        logger.writeParameters(FILENAME + ".params")
+                        if (not args.noparamdump):
+                            logger.writeParameters(FILENAME + ".params")
+                        print("Logger started")
                 else:
                     if logger.working:
+                        time.sleep(TRIGGEROFFDELAY)
                         logger.stop()
                         logger.closeFile()
                 if WDG:
@@ -138,7 +146,7 @@ def main():
         logger.start()
         if (not args.noparamdump):
             logger.writeParameters(OUTPUTFILE + ".params")
-        print("Press CTRL-BREAK (CTRL-C) to finish logging ...")
+        print("Logger started, press CTRL-BREAK (CTRL-C) to finish logging ...")
         while True:
             try:
                 if WDG:
