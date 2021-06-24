@@ -11,11 +11,12 @@ import argparse
 import operator
 import time
 import json
+import re
 
 
 # DEFAULTHOST = "192.168.2.100"
 DEFAULTURL = "wss://192.168.2.100:5568:5567"
-DEFAULTCERT="mcx.cert.pem"
+DEFAULTCERT="mcx.cert.crt"
 DEFAULTFREQDIV = 10
 DEFAULTTRIGGERINTERVAL = 0.5
 DEFAULTTRIGGEROFFDELAY = 0.0
@@ -113,8 +114,16 @@ def main():
     for i in J:
         # print("%s"%i["path"])
         parameters.append(i["path"])
+        
+    # check for user/password in url
+    login = ""
+    password = ""
+    match = re.search(args.url, "//(.+):(.+)@")
+    if match and len(match.groups()) == 2:
+        login = match.group(1)
+        password = match.group(2)
 
-    logger = DataLogger(args.url, parameters, divider=args.divider, certificate=args.certificate)
+    logger = DataLogger(url, parameters, divider=args.divider, certificate=args.certificate, login=login, password=password)
     if not logger.connected:
         exit(1)
     if TRIGGER:
