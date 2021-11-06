@@ -68,6 +68,7 @@ def main():
                         sep=',',
                         header=0,
                         skip_blank_lines=False,
+                        index_col=False
                         )
     else:
         P = pd.read_csv(fd,
@@ -75,6 +76,7 @@ def main():
                         header=0,
                         skip_blank_lines=False,
                         converters={0: convert_date},
+                        index_col=False
                         )
 
     # Determine current color list
