@@ -16,7 +16,8 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 def convert_date(timestamp):
-    return datetime.fromtimestamp(float(timestamp))
+    # This is a hack to avoid plot from freaking out. We have to add one nanosecond
+    return pd.to_datetime(float(timestamp)*1000000+1, unit='ns')
 
 def main():
     # Parse the command line
