@@ -1,0 +1,41 @@
+# from http://www.huyng.com/posts/sane-color-scheme-for-matplotlib/
+
+#backend: Qt4Agg
+
+figure.figsize   : 8, 6    # figure size in inches
+figure.dpi       : 90      # figure dots per inch
+#figure.facecolor : 283449    # figure facecolor; 0.75 is scalar gray
+#figure.edgecolor : f9e24c   # figure edgecolor
+figure.autolayout : True  # When True, automatically adjust subplot
+savefig.dpi       : 300      # figure dots per inch
+#savefig.facecolor : 283449    # figure facecolor; 0.75 is scalar gray
+#savefig.edgecolor : f9e24c   # figure edgecolor
+
+
+patch.linewidth: 0
+patch.facecolor: ffffff
+patch.edgecolor: EEEEEE
+patch.antialiased: True
+
+text.color          : 000000
+
+font.family         : sans-serif
+font.style          : normal
+font.variant        : normal
+font.weight         : medium
+font.stretch        : normal
+
+font.sans-serif     : Museo Sans, FreeSans, Ubuntu, DejaVu Sans
+font.size: 7.0
+
+axes.facecolor: ffffff
+axes.edgecolor: 000000
+axes.linewidth: 0.5
+axes.grid: True
+axes.titlesize: x-large
+axes.labelsize: large
+axes.labelcolor: 000000
+axes.axisbelow: True       # grid/ticks are below elements (eg lines, text)
+axes.xmargin        : 0
+#axes.ymargin        : 0
+

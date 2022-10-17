@@ -1,0 +1,73 @@
+body
+{
+    font-family: "Museo Sans", "Sans-serif", "DejaVu Sans";
+    font-size: 10pt;
+}
+
+h2
+{
+}
+
+img
+{
+    width: 100%;
+}
+
+th {
+  text-align: left;
+  font-weight: bold;
+}
+
+td.numeric
+{
+    text-align: right;
+    font-weight: bold;
+}
+
+pre
+{
+    font-family: "monospace";
+    font-size: 6pt;
+}
+
+h2 {
+    page-break-before: always;
+}
+h2:first-of-type {
+    page-break-before: avoid;
+}
+.new-page {
+    page-break-before: always;
+}
+
+@media print {
+  h2 {
+    page-break-before: always;
+  }
+  h2:first-of-type {
+      page-break-before: avoid;
+  }
+  .new-page {
+    page-break-before: always;
+  }
+}
+
+@page {
+    size: A4;
+    margin: 20mm 10mm 10mm 20mm;
+    font-family: "Museo Sans", "Sans-serif", "DejaVu Sans";
+    font-size: 10pt;
+    @bottom-center{
+        content: "Page " counter(page) " of " counter(pages);
+    }
+
+    @top-right {
+        content: url(../templates/images/motorcortex-logo.svg);
+        margin-top: 5mm;
+        margin-right: 0mm;
+        margin-bottom: 0mm;
+        margin-left: 0mm;
+    }
+
+}
+

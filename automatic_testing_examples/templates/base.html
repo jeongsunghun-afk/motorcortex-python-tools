@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>MOTORCORTEX-Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>{% include 'styles/default.css' %}</style>
+  </head>
+
+  <body>
+  
+  
+  <h1>Test Report</h1>
+  <p>This Test-Report is automatically generated using the MOTORCORTEX-Python library.</p>
+    {% for test in tests %}
+      {{ test }}
+    {% endfor %}
+  </body>
+</html>

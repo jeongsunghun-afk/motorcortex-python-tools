@@ -1,0 +1,109 @@
+#!/usr/bin/python3
+
+#
+#   Developer : Philippe Piatkiewitz (philippe.piatkiewitz@vectioneer.com)
+#   All rights reserved. Copyright (c) 2019 VECTIONEER.
+#
+
+import time
+
+import matplotlib.pyplot as plt
+import numpy as np
+from jinja2 import Template
+from motorcortex_tools import *
+
+
+def measureActuatorFriction(env, pathToActuator="root/Control/actuatorControlLoops/actuatorControlLoop01",
+                                 pathToSignalGenerator="root/Control/jointReferenceGenerator/signalGenerator01",
+                                 pathToSignalGeneratorEnable="root/Control/jointReferenceGenerator/enable",
+                                 amplitude=1, frequency=0.5,
+                                 plotForceRange=50.0, centerPlotAtForce=None, title=None, ID=0):
+    template = Template("""
+<h2>{{title}}</h2>
+<p>Actuator friction is measured over the total stroke and is measured at very
+ slow speeds to minimize dynamic forces acting on the actuator. </p>
+<table>
+    <tr><th>Test Conditions</th></tr>
+    <tr><td>Date & Time</td><td>{{datetime}}</td></tr>
+    <tr><td>amplitude</td><td class="numeric">{{amplitude}}</td></tr>
+    <tr><td>frequency</td><td class="numeric">{{frequency}}</td></tr>
+    <tr><th>Measurement</th></tr>
+    <tr><td>Static Force at midstroke</td><td class="numeric">{{'%0.3f' % fstat_at_midstroke}} kN</td><td class="numeric">({{'%0.1f'| format(fstat_at_midstroke|float * 224.808943)}} lbf)</td></tr>
+    <tr><td>Friction at midstroke</td><td class="numeric">{{'%0.3f' % friction_at_midstroke}} kN</td><td class="numeric">({{'%0.1f'| format(friction_at_midstroke|float * 224.808943)}} lbf)</td></tr>
+</table>
+<img src="{{plot}}">
+    """)
+
+    pathToPosition = pathToActuator + "/actualPosition"
+    pathToForce = pathToActuator + "/actualTorque"
+
+    req = env.req
+    print("Measure Static Force")
+    NumSamples = 20
+    sum = 0
+    for cnt in range(0, NumSamples):
+        sum = sum + req.getParameter(pathToForce).get().value[0]
+        time.sleep(0.05)
+    staticForceInMidstroke = sum / NumSamples
+    if centerPlotAtForce:
+        centerPlotAt = centerPlotAtForce
+    else:
+        centerPlotAt = staticForceInMidstroke
+        
+        
+    print("Start Motion")
+    # Set the signal type 
+    req.setParameter(pathToSignalGenerator+"/signalType", 4).get()
+    req.setParameter(pathToSignalGenerator+"/amplitude", amplitude).get()
+    req.setParameter(pathToSignalGenerator+"/frequency", frequency).get()
+    req.setParameter(pathToSignalGeneratorEnable, True).get()
+    waitFor(req, pathToSignalGenerator + "/enableIsOn", timeout=10)
+        
+    print("Starting Datalogger")
+    logger = DataLogger(env.url, [pathToPosition, pathToForce], certificate=env.certificate, divider=10)
+    logger.start()
+
+    # Wait 
+    print("Waiting for measurement to complete")
+    time.sleep(1/frequency)
+
+    print("Stopping Datalogger")
+    logger.stop()
+    logger.close()
+
+    print("Stopping Signal Generator")
+    req.setParameter(pathToSignalGeneratorEnable, True).get()
+    waitFor(req, pathToSignalGenerator + "/enableIsOff", timeout=10)
+    req.setParameter(pathToSignalGenerator+"/signalType", 0).get()
+
+    print("Done")
+    # generate the plot
+    x = np.array(logger.traces[pathToPosition]["y"][0]).transpose()
+    y = np.array(logger.traces[pathToForce]["y"][0]).transpose()
+    meany = np.mean(y)
+    minx = np.min(x)
+    maxx = np.max(x)
+    xrange = maxx - minx
+    midx = minx + xrange * 0.5
+    delta = 0.01
+    idxaroundmin = np.where((x > midx - delta) & (x < midx + delta))
+    yaroundmid = y[idxaroundmin]
+    friction_at_midstroke = np.max(yaroundmid) - np.min(yaroundmid)
+    fig = plt.figure()
+    plt.plot(x, y), plt.xlabel("position (m)"), plt.ylabel("force (kN)")
+    ax = plt.gca()
+    ax.set_ylim([centerPlotAt - 0.5 * plotForceRange, centerPlotAt + 0.5 * plotForceRange])
+    plt.title("Friction")
+    plt.savefig(env.outputfolder + env.plotfolder + "friction%03d.png" % ID)
+
+    titlestr = ""
+    if (title):
+        titlestr = " - %s" % title
+    output = template.render(title="Actuator Friction" + titlestr,
+                             datetime=time.strftime("%Y-%m-%d %H:%M:%S"),
+                             friction_at_midstroke=friction_at_midstroke,
+                             fstat_at_midstroke=staticForceInMidstroke,
+                             amplitude=amplitude,
+                             frequency=frequency,
+                             plot=env.plotfolder + "friction%03d.png" % ID)
+    return output
