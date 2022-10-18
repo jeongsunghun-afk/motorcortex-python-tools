@@ -17,28 +17,28 @@ def measureActuatorFriction(env, pathToActuator="root/Control/actuatorControlLoo
                                  pathToSignalGenerator="root/Control/jointReferenceGenerator/signalGenerator01",
                                  pathToSignalGeneratorEnable="root/Control/jointReferenceGenerator/enable",
                                  amplitude=1, frequencyHz=0.5,
-                                 plotForceRange=50.0, centerPlotAtForce=None, title=None, ID=0):
+                                 plotForceRange=5.0, centerPlotAtForce=None, title=None, ID=0):
     template = Template("""
-<h2>{{title}}</h2>
-<p>Actuator friction is measured over the total stroke and is measured at very
- slow speeds to minimize dynamic forces acting on the actuator. </p>
-<table>
-    <tr><th>Test Conditions</th></tr>
-    <tr><td>Date & Time</td><td>{{datetime}}</td></tr>
-    <tr><td>amplitude</td><td class="numeric">{{amplitude}}</td></tr>
-    <tr><td>frequency</td><td class="numeric">{{frequencyHz}} Hz</td></tr>
-    <tr><th>Measurement</th></tr>
-    <tr><td>Static Force at midstroke</td><td class="numeric">{{'%0.3f' % fstat_at_midstroke}} kN</td><td class="numeric">({{'%0.1f'| format(fstat_at_midstroke|float * 224.808943)}} lbf)</td></tr>
-    <tr><td>Friction at midstroke</td><td class="numeric">{{'%0.3f' % friction_at_midstroke}} kN</td><td class="numeric">({{'%0.1f'| format(friction_at_midstroke|float * 224.808943)}} lbf)</td></tr>
-</table>
-<img src="{{plot}}">
+    <h2>{{title}}</h2>
+    <p>Actuator friction is measured over the total stroke and is measured at very
+     slow speeds to minimize dynamic forces acting on the actuator. </p>
+    <table>
+        <tr><th>Test Conditions</th></tr>
+        <tr><td>Date & Time</td><td>{{datetime}}</td></tr>
+        <tr><td>amplitude</td><td class="numeric">{{amplitude}}</td></tr>
+        <tr><td>frequency</td><td class="numeric">{{frequencyHz}} Hz</td></tr>
+        <tr><th>Measurement</th></tr>
+        <tr><td>Static Torque at midstroke</td><td class="numeric">{{'%0.3f' % fstat_at_midstroke}} Nm</td></tr>
+        <tr><td>Torque at midstroke</td><td class="numeric">{{'%0.3f' % friction_at_midstroke}} Nm</td></tr>
+    </table>
+    <img src="{{plot}}">
     """)
 
     pathToPosition = pathToActuator + "/actualPosition"
     pathToForce = pathToActuator + "/actualTorque"
 
     req = env.req
-    print("Measure Static Force")
+    print("Measure Static Torque")
     NumSamples = 20
     sum = 0
     for cnt in range(0, NumSamples):
@@ -91,7 +91,7 @@ def measureActuatorFriction(env, pathToActuator="root/Control/actuatorControlLoo
     yaroundmid = y[idxaroundmin]
     friction_at_midstroke = np.max(yaroundmid) - np.min(yaroundmid)
     fig = plt.figure()
-    plt.plot(x, y), plt.xlabel("position (m)"), plt.ylabel("force (kN)")
+    plt.plot(x, y), plt.xlabel("position (rad)"), plt.ylabel("torque (Nm)")
     ax = plt.gca()
     ax.set_ylim([centerPlotAt - 0.5 * plotForceRange, centerPlotAt + 0.5 * plotForceRange])
     plt.title("Friction")
