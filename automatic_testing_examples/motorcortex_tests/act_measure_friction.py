@@ -12,12 +12,9 @@ import numpy as np
 from jinja2 import Template
 from motorcortex_tools import *
 
-
-def measureActuatorFriction(env, pathToActuator="root/Control/actuatorControlLoops/actuatorControlLoop01",
-                                 pathToSignalGenerator="root/Control/jointReferenceGenerator/signalGenerator01",
-                                 pathToSignalGeneratorEnable="root/Control/jointReferenceGenerator/enable",
+def measureActuatorFriction(env, systemData, ID=1,
                                  amplitude=1, frequencyHz=0.1,
-                                 plotForceRange=5.0, centerPlotAtForce=None, title=None, ID=0):
+                                 plotForceRange=5.0, centerPlotAtForce=None, title=None):
     template = Template("""
     <h2>{{title}}</h2>
     <p>Actuator friction is measured over the total stroke and is measured at very
@@ -34,8 +31,8 @@ def measureActuatorFriction(env, pathToActuator="root/Control/actuatorControlLoo
     <img src="{{plot}}">
     """)
 
-    pathToPosition = pathToActuator + "/actualPosition"
-    pathToForce = pathToActuator + "/actualTorque"
+    pathToPosition = systemData.pathToActuator % ID + "/actualPosition"
+    pathToForce = systemData.pathToActuator % ID + "/actualTorque"
 
     req = env.req
     print("Measure Static Torque")
@@ -49,16 +46,15 @@ def measureActuatorFriction(env, pathToActuator="root/Control/actuatorControlLoo
         centerPlotAt = centerPlotAtForce
     else:
         centerPlotAt = staticForceInMidstroke
-        
-        
+
     print("Start Motion")
     # Set the signal type 
-    req.setParameter(pathToSignalGenerator+"/signalType", 4).get()
-    req.setParameter(pathToSignalGenerator+"/amplitude", amplitude).get()
-    req.setParameter(pathToSignalGenerator+"/frequency", frequencyHz*2*np.pi).get()
-    req.setParameter(pathToSignalGeneratorEnable, True).get()
-    time.sleep(req.getParameter(pathToSignalGenerator+"/newSettingFadeTime").get().value[0])
-    waitFor(req, pathToSignalGenerator + "/enableIsOn", timeout=10)
+    req.setParameter(systemData.pathToSignalGenerator%ID+"/signalType", 4).get()
+    req.setParameter(systemData.pathToSignalGenerator%ID+"/amplitude", amplitude).get()
+    req.setParameter(systemData.pathToSignalGenerator%ID+"/frequency", frequencyHz*2*np.pi).get()
+    req.setParameter(systemData.pathToSignalGeneratorEnable, True).get()
+    time.sleep(req.getParameter(systemData.pathToSignalGenerator%ID+"/newSettingFadeTime").get().value[0])
+    waitFor(req, systemData.pathToSignalGenerator%ID + "/enableIsOn", timeout=10)
         
     print("Starting Datalogger")
     logger = DataLogger(env.url, [pathToPosition, pathToForce], certificate=env.certificate, divider=10)
@@ -73,9 +69,9 @@ def measureActuatorFriction(env, pathToActuator="root/Control/actuatorControlLoo
     logger.close()
 
     print("Stopping Signal Generator")
-    req.setParameter(pathToSignalGeneratorEnable, False).get()
-    waitFor(req, pathToSignalGenerator + "/enableIsOff", timeout=10)
-    req.setParameter(pathToSignalGenerator+"/signalType", 0).get()
+    req.setParameter(systemData.pathToSignalGeneratorEnable, False).get()
+    waitFor(req, systemData.pathToSignalGenerator%ID + "/enableIsOff", timeout=10)
+    req.setParameter(systemData.pathToSignalGenerator%ID+"/signalType", 0).get()
 
     print("Done")
     # generate the plot
