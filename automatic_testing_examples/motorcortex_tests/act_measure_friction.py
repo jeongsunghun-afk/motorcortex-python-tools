@@ -16,7 +16,7 @@ from motorcortex_tools import *
 def measureActuatorFriction(env, pathToActuator="root/Control/actuatorControlLoops/actuatorControlLoop01",
                                  pathToSignalGenerator="root/Control/jointReferenceGenerator/signalGenerator01",
                                  pathToSignalGeneratorEnable="root/Control/jointReferenceGenerator/enable",
-                                 amplitude=1, frequency=0.5,
+                                 amplitude=1, frequencyHz=0.5,
                                  plotForceRange=50.0, centerPlotAtForce=None, title=None, ID=0):
     template = Template("""
 <h2>{{title}}</h2>
@@ -26,7 +26,7 @@ def measureActuatorFriction(env, pathToActuator="root/Control/actuatorControlLoo
     <tr><th>Test Conditions</th></tr>
     <tr><td>Date & Time</td><td>{{datetime}}</td></tr>
     <tr><td>amplitude</td><td class="numeric">{{amplitude}}</td></tr>
-    <tr><td>frequency</td><td class="numeric">{{frequency}}</td></tr>
+    <tr><td>frequency</td><td class="numeric">{{frequencyHz}} Hz</td></tr>
     <tr><th>Measurement</th></tr>
     <tr><td>Static Force at midstroke</td><td class="numeric">{{'%0.3f' % fstat_at_midstroke}} kN</td><td class="numeric">({{'%0.1f'| format(fstat_at_midstroke|float * 224.808943)}} lbf)</td></tr>
     <tr><td>Friction at midstroke</td><td class="numeric">{{'%0.3f' % friction_at_midstroke}} kN</td><td class="numeric">({{'%0.1f'| format(friction_at_midstroke|float * 224.808943)}} lbf)</td></tr>
@@ -55,8 +55,9 @@ def measureActuatorFriction(env, pathToActuator="root/Control/actuatorControlLoo
     # Set the signal type 
     req.setParameter(pathToSignalGenerator+"/signalType", 4).get()
     req.setParameter(pathToSignalGenerator+"/amplitude", amplitude).get()
-    req.setParameter(pathToSignalGenerator+"/frequency", frequency).get()
+    req.setParameter(pathToSignalGenerator+"/frequency", frequencyHz*2*np.pi).get()
     req.setParameter(pathToSignalGeneratorEnable, True).get()
+    time.sleep(req.getParameter(pathToSignalGenerator+"/newSettingFadeTime").get().value[0])
     waitFor(req, pathToSignalGenerator + "/enableIsOn", timeout=10)
         
     print("Starting Datalogger")
@@ -65,7 +66,7 @@ def measureActuatorFriction(env, pathToActuator="root/Control/actuatorControlLoo
 
     # Wait 
     print("Waiting for measurement to complete")
-    time.sleep(1/frequency)
+    time.sleep(1/frequencyHz)
 
     print("Stopping Datalogger")
     logger.stop()
@@ -104,6 +105,6 @@ def measureActuatorFriction(env, pathToActuator="root/Control/actuatorControlLoo
                              friction_at_midstroke=friction_at_midstroke,
                              fstat_at_midstroke=staticForceInMidstroke,
                              amplitude=amplitude,
-                             frequency=frequency,
+                             frequencyHz=frequencyHz,
                              plot=env.plotfolder + "friction%03d.png" % ID)
     return output
