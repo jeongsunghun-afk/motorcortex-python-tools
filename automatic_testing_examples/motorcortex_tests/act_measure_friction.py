@@ -16,7 +16,7 @@ from motorcortex_tools import *
 def measureActuatorFriction(env, pathToActuator="root/Control/actuatorControlLoops/actuatorControlLoop01",
                                  pathToSignalGenerator="root/Control/jointReferenceGenerator/signalGenerator01",
                                  pathToSignalGeneratorEnable="root/Control/jointReferenceGenerator/enable",
-                                 amplitude=1, frequencyHz=0.5,
+                                 amplitude=1, frequencyHz=0.1,
                                  plotForceRange=5.0, centerPlotAtForce=None, title=None, ID=0):
     template = Template("""
     <h2>{{title}}</h2>
@@ -73,7 +73,7 @@ def measureActuatorFriction(env, pathToActuator="root/Control/actuatorControlLoo
     logger.close()
 
     print("Stopping Signal Generator")
-    req.setParameter(pathToSignalGeneratorEnable, True).get()
+    req.setParameter(pathToSignalGeneratorEnable, False).get()
     waitFor(req, pathToSignalGenerator + "/enableIsOff", timeout=10)
     req.setParameter(pathToSignalGenerator+"/signalType", 0).get()
 
