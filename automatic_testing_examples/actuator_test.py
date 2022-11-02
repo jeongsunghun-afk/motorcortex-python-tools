@@ -54,7 +54,7 @@ class TestEnvironment:
         self.sub.close()
         self.req.close()
 
-class SystemData():
+class SystemDataGenericApp():
     def __init__(self):
         # references to common signals
         self.pathToStateCommand = "root/Logic/stateCommand"
@@ -88,7 +88,7 @@ def main():
         print("Exiting")
         exit(0)
 
-    system = SystemData()
+    system = SystemDataGenericApp()
 
     # send the system to engaged before starting the tests
     system.gotoEngage(testEnv)

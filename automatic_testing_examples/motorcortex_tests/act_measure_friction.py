@@ -13,8 +13,8 @@ from jinja2 import Template
 from motorcortex_tools import *
 
 def measureActuatorFriction(env, systemData, ID=1,
-                                 amplitude=1, frequencyHz=0.1,
-                                 plotForceRange=5.0, centerPlotAtForce=None, title=None):
+                                 amplitude=1, frequencyHz=0.025,
+                                 plotForceRange=1.0, centerPlotAtForce=None, title=None):
     template = Template("""
     <h2>{{title}}</h2>
     <p>Actuator friction is measured over the total stroke and is measured at very
@@ -28,10 +28,16 @@ def measureActuatorFriction(env, systemData, ID=1,
         <tr><td>Static Torque at midstroke</td><td class="numeric">{{'%0.3f' % fstat_at_midstroke}} Nm</td></tr>
         <tr><td>Torque at midstroke</td><td class="numeric">{{'%0.3f' % friction_at_midstroke}} Nm</td></tr>
     </table>
+    <p>
     <img src="{{plot}}">
+    </p>
+    <p>
+    <img src="{{plotV}}">
+    </p>
     """)
 
     pathToPosition = systemData.pathToActuator % ID + "/actualPosition"
+    pathToVelocity = systemData.pathToActuator % ID + "/actualVelocityFiltered"
     pathToForce = systemData.pathToActuator % ID + "/actualTorque"
 
     req = env.req
@@ -57,7 +63,7 @@ def measureActuatorFriction(env, systemData, ID=1,
     waitFor(req, systemData.pathToSignalGenerator%ID + "/enableIsOn", timeout=10)
         
     print("Starting Datalogger")
-    logger = DataLogger(env.url, [pathToPosition, pathToForce], certificate=env.certificate, divider=10)
+    logger = DataLogger(env.url, [pathToPosition, pathToForce, pathToVelocity], certificate=env.certificate, divider=10)
     logger.start()
 
     # Wait 
@@ -74,7 +80,7 @@ def measureActuatorFriction(env, systemData, ID=1,
     req.setParameter(systemData.pathToSignalGenerator%ID+"/signalType", 0).get()
 
     print("Done")
-    # generate the plot
+    # generate the position-force plot
     x = np.array(logger.traces[pathToPosition]["y"][0]).transpose()
     y = np.array(logger.traces[pathToForce]["y"][0]).transpose()
     meany = np.mean(y)
@@ -93,6 +99,25 @@ def measureActuatorFriction(env, systemData, ID=1,
     plt.title("Friction")
     plt.savefig(env.outputfolder + env.plotfolder + "friction%03d.png" % ID)
 
+    # generate the velocity-force plot
+    x = np.array(logger.traces[pathToVelocity]["y"][0]).transpose()
+    y = np.array(logger.traces[pathToForce]["y"][0]).transpose()
+    meany = np.mean(y)
+    minx = np.min(x)
+    maxx = np.max(x)
+    xrange = maxx - minx
+    midx = minx + xrange * 0.5
+    delta = 0.01
+    idxaroundmin = np.where((x > midx - delta) & (x < midx + delta))
+    yaroundmid = y[idxaroundmin]
+    friction_at_midstroke = np.max(yaroundmid) - np.min(yaroundmid)
+    fig = plt.figure()
+    plt.plot(x, y), plt.xlabel("velocity (rad/s)"), plt.ylabel("torque (Nm)")
+    ax = plt.gca()
+    ax.set_ylim([centerPlotAt - 0.5 * plotForceRange, centerPlotAt + 0.5 * plotForceRange])
+    plt.title("Force vs Velocity")
+    plt.savefig(env.outputfolder + env.plotfolder + "frictionV%03d.png" % ID)
+
     titlestr = ""
     if (title):
         titlestr = " - %s" % title
@@ -102,5 +127,6 @@ def measureActuatorFriction(env, systemData, ID=1,
                              fstat_at_midstroke=staticForceInMidstroke,
                              amplitude=amplitude,
                              frequencyHz=frequencyHz,
-                             plot=env.plotfolder + "friction%03d.png" % ID)
+                             plot=env.plotfolder + "friction%03d.png" % ID,
+                             plotV=env.plotfolder + "frictionV%03d.png" % ID)
     return output
