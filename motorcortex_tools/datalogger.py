@@ -50,7 +50,7 @@ class DataLogger:
 
     Methods
     -------
-    connect(server, login="", password="", certificate="mcx.cert.pem")
+    connect(server, login="", password="", certificate="mcx.cert.crt")
         connects to a server
     openFileAndWriteHeader(filename)
         opens a file and writes the header information to that file
@@ -90,7 +90,7 @@ class DataLogger:
         if self.connected:
             self.__initTraces(paths)
 
-    def connect(self, url, login, password, certificate="mcx.cert.pem", conn_timeout_ms=1000):
+    def connect(self, url, login, password, certificate="mcx.cert.crt", conn_timeout_ms=1000):
         """
         Connect to a Motorcortex server and login
 
