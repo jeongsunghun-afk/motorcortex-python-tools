@@ -23,7 +23,7 @@ try:
 except:
     print("Could not load plotstyle")
 
-URL = "wss://192.168.2.100:5568:5567"
+URL = "wss://192.168.56.3:5568:5567"
 TEMPLATESFOLDER="templates"
 OUTPUTFOLDER = "results/"
 PLOTFOLDER = "plots/"
@@ -96,6 +96,7 @@ def main():
     results = []
     ## Append you tests here:
     results.append(measureActuatorFriction(testEnv, system, ID=1))
+    results.append(measureActuatorFriction(testEnv, system, ID=2))
 
     system.gotoOff(testEnv)
     # close communication
