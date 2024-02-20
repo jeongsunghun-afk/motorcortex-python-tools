@@ -174,9 +174,11 @@ class DataLogger:
         Open a file an write the header containing column names for each signal
         """
         if compress:
-            self.file = lzma.open(filename+'.xz', 'wt', preset=0)
+            filename = filename + '.xz'
+            self.file = lzma.open(filename, 'wt', preset=0)
         else:
             self.file = open(filename, 'w', buffering=1)
+        print("Writing to %s"%filename)
         self.file.write("time")
         returnVal = True
         for path in self.paths:

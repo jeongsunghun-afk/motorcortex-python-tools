@@ -47,7 +47,7 @@ def main():
     parser.add_argument('-f', '--file', help='Specify the filename that the data will be saved to. \
                         By default the filename is created based on the current date and time', required=False, default=None)
     parser.add_argument('-F', '--folder', help='Folder where output files are placed', required=False, type=str, default=".")
-    parser.add_argument('-c', '--comment', help='Comment to append to filename', nargs='+', required=False, type=str)
+    parser.add_argument('-c', '--comment', help='Comment to append to filename', required=False, type=str)
     # parser.add_argument('-H', '--host', help='Host to connect to (Default: %s)' % DEFAULTHOST, required=False,
     #                     default=DEFAULTHOST)
     parser.add_argument('-u', '--url', help='URL to connect to (Default: %s)' % DEFAULTURL, required=False,
@@ -74,13 +74,13 @@ def main():
     parser.add_argument('--watchdogpulse', help='Send a watchdog parameter update to specified parameter at \
                                                  triggerinterval pulses per second. The value that is sent to the \
                                                  parameter is true. It is expected that the server resets the parameter \
-                                                 to false cyclically.', required=False, default=None)
+                                                 to false cyclically. This feature is useful for letting the application \
+                                                 know that the logger is still active.', required=False, default=None)
 
     args = parser.parse_args()
     INPUTFILE = args.parameterfile
-    comment = None
     FOLDER=args.folder
-    OUTPUTFILE = createFileName(folder=FOLDER, filename=args.file, comment=comment)
+    OUTPUTFILE = createFileName(folder=FOLDER, filename=args.file, comment=args.comment)
 
     # HOST = args.host
     TRIGGER = args.trigger
