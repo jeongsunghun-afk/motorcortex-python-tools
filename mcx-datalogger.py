@@ -80,7 +80,8 @@ def main():
     args = parser.parse_args()
     INPUTFILE = args.parameterfile
     FOLDER=args.folder
-    OUTPUTFILE = createFileName(folder=FOLDER, filename=args.file, comment=args.comment)
+    comment=args.comment
+    OUTPUTFILE = createFileName(folder=FOLDER, filename=args.file, comment=comment)
 
     # HOST = args.host
     TRIGGER = args.trigger
