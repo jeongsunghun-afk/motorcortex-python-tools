@@ -11,7 +11,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='motorcortex-python-tools',
-      version='1.3.14',
+      version='1.3.15',
       description='Python tools for Motorcortex Engine',
       author='Philippe Piatkiewitz',
       author_email='philippe.piatkiewitz@vectioneer.com',
