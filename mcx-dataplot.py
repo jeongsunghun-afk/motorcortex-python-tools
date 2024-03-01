@@ -14,6 +14,7 @@ from datetime import datetime
 import pandas as pd
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
+from motorcortex_tools import loadData
 
 def convert_date(timestamp):
     # This is a hack to avoid plot from freaking out. We have to add one microsecond
@@ -50,35 +51,23 @@ def main():
     font = {'size': 6}
     plt.rc('font', **font)
 
-    # Read the input file
-    if (FILENAME[-2:] == "xz"):
-        fd = lzma.open(FILENAME, "rt")
-    else:
-        fd = open(FILENAME, "r")
-    colnames = [x.strip() for x in fd.readline().split(",")]
+    # Check if we are just displaying signal names
     if (args.list or (not PLOTCOLS)):
+        # Only read the first line to get the signal names
+        if (FILENAME[-2:] == "xz"):
+            fd = lzma.open(FILENAME, "rt")
+        else:
+            fd = open(FILENAME, "r")
+        colnames = [x.strip() for x in fd.readline().split(",")]
+        fd.close()
         cnt = 0
         for signal in colnames:
             print("%2d " % cnt + signal)
             cnt = cnt + 1
         return
 
-    fd.seek(0)
-    if args.nodateconv:
-        P = pd.read_csv(fd,
-                        sep=',',
-                        header=0,
-                        skip_blank_lines=False,
-                        index_col=False
-                        )
-    else:
-        P = pd.read_csv(fd,
-                        sep=',',
-                        header=0,
-                        skip_blank_lines=False,
-                        converters={0: convert_date},
-                        index_col=False
-                        )
+    print("Loading Data")
+    P = loadData(FILENAME)
 
     # Determine current color list
     prop_cycle = plt.rcParams['axes.prop_cycle']
@@ -129,7 +118,7 @@ def main():
         newax.grid("on")
         plotID += 1
 
-    plt.xlabel(colnames[XAXIS])
+    plt.xlabel(P.columns[XAXIS])
     fig.tight_layout()
     if OUTPUT:
         plt.savefig(OUTPUT)
