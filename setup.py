@@ -2,7 +2,7 @@
 
 #
 #   Developer : Philippe Piatkiewitz (philippe.piatkiewitz@vectioneer.com)
-#   All rights reserved. Copyright (c) 2019 VECTIONEER.
+#   All rights reserved. Copyright (c) 2019-2024 VECTIONEER.
 #
 
 from setuptools import setup
@@ -11,7 +11,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='motorcortex-python-tools',
-      version='1.3.15',
+      version='1.3.16',
       description='Python tools for Motorcortex Engine',
       author='Philippe Piatkiewitz',
       author_email='philippe.piatkiewitz@vectioneer.com',

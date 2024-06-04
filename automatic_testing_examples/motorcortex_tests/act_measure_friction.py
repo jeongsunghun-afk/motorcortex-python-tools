@@ -36,9 +36,9 @@ def measureActuatorFriction(env, systemData, ID=1,
     </p>
     """)
 
-    pathToPosition = systemData.pathToActuator % ID + "/actualPosition"
-    pathToVelocity = systemData.pathToActuator % ID + "/actualVelocityFiltered"
-    pathToForce = systemData.pathToActuator % ID + "/actualTorque"
+    pathToPosition = systemData.pathToActuator % ID + "/actuatorPositionActual"
+    pathToVelocity = systemData.pathToActuator % ID + "/actuatorVelocityActual"
+    pathToForce = systemData.pathToActuator % ID + "/actuatorTorqueActual"
 
     req = env.req
     print("Measure Static Torque")
@@ -54,11 +54,12 @@ def measureActuatorFriction(env, systemData, ID=1,
         centerPlotAt = staticForceInMidstroke
 
     print("Start Motion")
-    # Set the signal type 
+    # Set the signal type
+    print(systemData.pathToSignalGenerator%ID+"/signalType")
     req.setParameter(systemData.pathToSignalGenerator%ID+"/signalType", 4).get()
     req.setParameter(systemData.pathToSignalGenerator%ID+"/amplitude", amplitude).get()
     req.setParameter(systemData.pathToSignalGenerator%ID+"/frequency", frequencyHz*2*np.pi).get()
-    req.setParameter(systemData.pathToSignalGeneratorEnable, True).get()
+    req.setParameter(systemData.pathToSignalGeneratorEnable%ID, True).get()
     time.sleep(req.getParameter(systemData.pathToSignalGenerator%ID+"/newSettingFadeTime").get().value[0])
     waitFor(req, systemData.pathToSignalGenerator%ID + "/enableIsOn", timeout=10)
         
@@ -75,7 +76,7 @@ def measureActuatorFriction(env, systemData, ID=1,
     logger.close()
 
     print("Stopping Signal Generator")
-    req.setParameter(systemData.pathToSignalGeneratorEnable, False).get()
+    req.setParameter(systemData.pathToSignalGeneratorEnable%ID, False).get()
     waitFor(req, systemData.pathToSignalGenerator%ID + "/enableIsOff", timeout=10)
     req.setParameter(systemData.pathToSignalGenerator%ID+"/signalType", 0).get()
 

@@ -23,7 +23,7 @@ try:
 except:
     print("Could not load plotstyle")
 
-URL = "wss://192.168.56.3:5568:5567"
+URL = "wss://192.168.56.6:5568:5567"
 TEMPLATESFOLDER="templates"
 OUTPUTFOLDER = "results/"
 PLOTFOLDER = "plots/"
@@ -58,13 +58,16 @@ class SystemDataGenericApp():
     def __init__(self):
         # references to common signals
         self.pathToStateCommand = "root/Logic/stateCommand"
-        self.pathToActuator = "root/Control/actuatorControlLoops/actuatorControlLoop%02d"
-        self.pathToSignalGenerator = "root/Control/jointReferenceGenerator/signalGenerator%02d"
-        self.pathToSignalGeneratorEnable = "root/Control/jointReferenceGenerator/enable"
-        self.pathToIsEngaged = "root/Logic/isAtEngaged"
-        self.pathToPauseMode = "root/Control/gotoPauseMode"
+        self.pathToActuator = "root/AxesControl/actuatorControlLoops/actuatorControlLoop%02d"
+        self.pathToSignalGenerator = "root/SignalGenerators/SignalGenerator%02d"
+        self.pathToSignalGeneratorEnable = "root/SignalGenerators/SignalGenerator%02d/enable"
+        self.pathToIsEngaged = "root/Logic/:ctrlToState/isAtEngaged"
+        self.pathToPauseMode = "root/MachineControl/gotoPauseMode"
+        self.pathToJogMode = "root/MachineControl/gotoJogMode"
+        self.pathToJogModeIsOff = "root/MachineControl/jointJogModeSwitch/isOff"
         # requirements
         self.maxFriction = 2.0 # kN
+        self.modeCommands = {  "Pause": 1, "AutoRun": 2, "ManualJoint":3, "ManualCart": 4, "MoveToStart": 5, "SemiAuto": 9 }
         self.stateCommands = { "Off": 0, "Engage": 2}
         # Velocity Accelration Jerk test
         self.vaj_criteria={"velocity": 1,
@@ -74,6 +77,8 @@ class SystemDataGenericApp():
         print("Engaging Actuator")
         environment.req.setParameter(self.pathToStateCommand, self.stateCommands["Engage"]).get()
         waitFor(environment.req, self.pathToIsEngaged, timeout=10)
+        environment.req.setParameter(self.pathToJogMode, False).get()
+        waitFor(environment.req, self.pathToJogModeIsOff, timeout=10)
         environment.req.setParameter(self.pathToPauseMode, False).get()
     def gotoOff(self, environment):
         print("Disengaging actuator")
@@ -96,7 +101,6 @@ def main():
     results = []
     ## Append you tests here:
     results.append(measureActuatorFriction(testEnv, system, ID=1))
-    results.append(measureActuatorFriction(testEnv, system, ID=2))
 
     system.gotoOff(testEnv)
     # close communication

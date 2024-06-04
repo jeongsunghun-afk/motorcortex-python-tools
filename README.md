@@ -20,18 +20,12 @@ INSTALL
 
 ON LINUX:
 1. "sudo apt install python3 python3-matplotlib python3-jinja2"
-2. "sudo pip3 install motorcortex-python"
-3. extract the motorcortex-python-tools archive
-   "cd motorcortex-python-tools/"
-   "sudo python3 ./setup.py install"
+2. "sudo pip3 install motorcortex-python motorcortex-python-tools"
 
 ON OTHER SYSTEMS (using PIP)
 1. install Python 3.x (see http://www.python.org)
 2. use pip3 to install all required packages:
-   "pip3 install matplotlib jinja2 motorcortex-python"
-3. extract the motorcortex-python-tools archive
-   "cd motorcortex-python-tools/"
-   execute "python3 ./setup.py install"
+   "pip3 install matplotlib jinja2 motorcortex-python motorcortex-python-tools"
 
    
 For instructions:
