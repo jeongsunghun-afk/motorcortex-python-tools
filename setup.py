@@ -11,7 +11,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='motorcortex-python-tools',
-      version='1.4.0',
+      version='1.4.1',
       description='Python tools for Motorcortex Engine',
       author='Philippe Piatkiewitz',
       author_email='philippe.piatkiewitz@vectioneer.com',
@@ -19,6 +19,7 @@ setup(name='motorcortex-python-tools',
       packages=['motorcortex_tools'],
       license='MIT',
       scripts=['mcx-datalogger.py','mcx-dataplot.py'],
-      install_requires=['pandas>0.22','matplotlib>2.1','motorcortex-python>0.20.1'],
+      install_requires=['pandas>0.22','matplotlib>2.1','motorcortex-python>0.20.1','PyQt5>5.15.6'],
+      extras_require={'autotest':['jinja2>3.0.3','weasyprint>54.1']}
       )
 

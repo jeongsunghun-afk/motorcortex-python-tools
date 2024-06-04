@@ -23,7 +23,7 @@ try:
 except:
     print("Could not load plotstyle")
 
-URL = "wss://192.168.56.6:5568:5567"
+URL = "wss://192.168.2.100:5568:5567"
 TEMPLATESFOLDER="templates"
 OUTPUTFOLDER = "results/"
 PLOTFOLDER = "plots/"
