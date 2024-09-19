@@ -12,7 +12,7 @@ import operator
 import time
 import json
 import re
-
+import signal
 
 # DEFAULTHOST = "192.168.2.100"
 DEFAULTURL = "wss://192.168.2.100:5568:5567"
@@ -20,6 +20,19 @@ DEFAULTCERT="mcx.cert.crt"
 DEFAULTFREQDIV = 10
 DEFAULTTRIGGERINTERVAL = 0.5
 DEFAULTTRIGGEROFFDELAY = 0
+
+logger=None
+
+def signal_handler(sig, frame):
+    print("Received SIGINT. Exiting gracefully...")
+    #if logger.working:
+    if logger is not None:
+        print("Stopping Logger...")
+        logger.stop()
+        print("Closing Logger...")
+        logger.close()
+    exit(0)
+
 
 def createFileName(folder=".", filename=None, comment=None, extension=".csv"):
     TIMESTRING = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
@@ -33,6 +46,7 @@ def createFileName(folder=".", filename=None, comment=None, extension=".csv"):
             return folder+"/"+TIMESTRING + extension
 
 def main():
+    global logger
     # Parse the command line
     DESC = """
     Log data from a MOTORCORTEX Server to a CSV file.
@@ -127,6 +141,7 @@ def main():
         url = url.replace(match.group(),"//")
 
     logger = DataLogger(url, parameters, divider=args.divider, certificate=args.certificate, login=login, password=password)
+
     if not logger.connected:
         exit(1)
     if TRIGGER:
@@ -149,10 +164,7 @@ def main():
                     logger.req.setParameter(WDG, True).get()
                 time.sleep(TRIGGERINTERVAL)
         except KeyboardInterrupt:
-            if logger.working:
-                logger.stop()
-                logger.closeFile()
-            logger.close()
+            pass
     else:
         logger.openFileAndWriteHeader(OUTPUTFILE, compress = args.compress)
         logger.start()
@@ -164,13 +176,12 @@ def main():
                 if WDG:
                     logger.req.setParameter(WDG, True).get()
                 time.sleep(TRIGGERINTERVAL)
-            except KeyboardInterrupt:
-                break
             except:
                 break
         logger.stop()
         logger.close()
 
 
+signal.signal(signal.SIGINT, signal_handler)
 if __name__ == '__main__':
     main()

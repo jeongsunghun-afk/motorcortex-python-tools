@@ -233,7 +233,9 @@ class DataLogger:
         """
         print("Stopping logger")
         self.working = False
-        self.sub.unsubscribe(self.subscription)
+        if self.sub is not None:
+            if self.subscription is not None:
+                self.sub.unsubscribe(self.subscription)
 
     def closeFile(self):
         """
@@ -242,6 +244,7 @@ class DataLogger:
         It is possible to create a new file by calling openFileAndWriteHeader()
         """
         if self.file:
+            print("Closing logger file")
             self.file.close()
             self.file = None
 
@@ -251,6 +254,7 @@ class DataLogger:
 
         To start a new recording you need to call connect() first.
         """
+        print("Closing server connection")
         self.closeFile()
         self.sub.close()
         self.req.close()
