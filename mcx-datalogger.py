@@ -77,7 +77,7 @@ def main():
                         The logger is started whenever the trigger condition is met.',
                         required=False, default=None)
     parser.add_argument('--triggerinterval', help='Trigger interval in seconds; the interval at which the trigger parameter is checked. \
-                         (default: %.3f s)'%DEFAULTTRIGGERINTERVAL, required=False, default=DEFAULTTRIGGERINTERVAL)
+                         (default: %.3f s)'%DEFAULTTRIGGERINTERVAL, required=False, default=DEFAULTTRIGGERINTERVAL, type=float)
     parser.add_argument('--triggervalue', help='Trigger value; the value the trigger is compared to.', required=False, default=True)
     parser.add_argument('--triggerop', help='Trigger operator; the operator that is used for comparison.', required=False, default="==", choices=['==','<','>','<=','>=','!='],)
     parser.add_argument('--triggeroffdelay', help='Trigger off delay in seconds; after the trigger condition is false, \
