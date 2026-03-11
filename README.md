@@ -33,3 +33,4 @@ mcx-datalogger --help
 mcx-dataplot --help
 
 
+# motorcortex-python-tools
