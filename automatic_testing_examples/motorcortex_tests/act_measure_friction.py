@@ -44,10 +44,14 @@ def measureActuatorFriction(env, systemData, ID=1,
     print("Measure Static Torque")
     NumSamples = 20
     sum = 0
+# 1. 정지 토크 측정부 수정 (Nm 단위로 저장)
+    sum_val = 0
     for cnt in range(0, NumSamples):
-        sum = sum + req.getParameter(pathToForce).get().value[0]
+    # mNm 단위를 1000으로 나눠서 Nm로 변환
+        raw_mNm = req.getParameter(pathToForce).get().value[0]
+        sum_val = sum_val + (raw_mNm / 1000.0)
         time.sleep(0.05)
-    staticForceInMidstroke = sum / NumSamples
+        staticForceInMidstroke = sum_val / NumSamples
     if centerPlotAtForce:
         centerPlotAt = centerPlotAtForce
     else:
@@ -83,7 +87,7 @@ def measureActuatorFriction(env, systemData, ID=1,
     print("Done")
     # generate the position-force plot
     x = np.array(logger.traces[pathToPosition]["y"][0]).transpose()
-    y = np.array(logger.traces[pathToForce]["y"][0]).transpose()
+    y = np.array(logger.traces[pathToForce]["y"][0]).transpose()/1000
     meany = np.mean(y)
     minx = np.min(x)
     maxx = np.max(x)
@@ -96,13 +100,13 @@ def measureActuatorFriction(env, systemData, ID=1,
     fig = plt.figure()
     plt.plot(x, y), plt.xlabel("position (rad)"), plt.ylabel("torque (Nm)")
     ax = plt.gca()
-    ax.set_ylim([centerPlotAt - 0.5 * plotForceRange, centerPlotAt + 0.5 * plotForceRange])
+    ax.set_ylim([centerPlotAt - 0.1 * plotForceRange, centerPlotAt + 0.1 * plotForceRange])
     plt.title("Friction")
     plt.savefig(env.outputfolder + env.plotfolder + "friction%03d.png" % ID)
 
     # generate the velocity-force plot
     x = np.array(logger.traces[pathToVelocity]["y"][0]).transpose()
-    y = np.array(logger.traces[pathToForce]["y"][0]).transpose()
+    y = np.array(logger.traces[pathToForce]["y"][0]).transpose()/1000
     meany = np.mean(y)
     minx = np.min(x)
     maxx = np.max(x)
@@ -115,7 +119,7 @@ def measureActuatorFriction(env, systemData, ID=1,
     fig = plt.figure()
     plt.plot(x, y), plt.xlabel("velocity (rad/s)"), plt.ylabel("torque (Nm)")
     ax = plt.gca()
-    ax.set_ylim([centerPlotAt - 0.5 * plotForceRange, centerPlotAt + 0.5 * plotForceRange])
+    ax.set_ylim([centerPlotAt - 0.1 * plotForceRange, centerPlotAt + 0.1 * plotForceRange])
     plt.title("Force vs Velocity")
     plt.savefig(env.outputfolder + env.plotfolder + "frictionV%03d.png" % ID)
 

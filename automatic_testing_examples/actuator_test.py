@@ -100,7 +100,7 @@ def main():
 
     results = []
     ## Append you tests here:
-    results.append(measureActuatorFriction(testEnv, system, ID=1))
+    results.append(measureActuatorFriction(testEnv, system, ID=1, plotForceRange=4.0))
 
     system.gotoOff(testEnv)
     # close communication
